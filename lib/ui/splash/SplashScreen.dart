@@ -1,8 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import '../home/HomeScreen.dart';
-import 'package:async/async.dart';
 
 class Splashscreen extends StatefulWidget {
   const Splashscreen({super.key});
@@ -12,13 +10,12 @@ class Splashscreen extends StatefulWidget {
 }
 
 class _SplashscreenState extends State<Splashscreen> {
-
   @override
   void initState() {
     super.initState();
     Future.delayed(
       const Duration(seconds: 3),
-          () {
+      () {
         Navigator.pushReplacementNamed(context, '/home');
       },
     );
@@ -26,8 +23,6 @@ class _SplashscreenState extends State<Splashscreen> {
 
   @override
   Widget build(BuildContext context) {
-    return   const Scaffold(backgroundColor: Colors.amberAccent);
+    return const Scaffold(backgroundColor: Colors.amberAccent);
   }
 }
-
-

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:solutionmaker/ui/home/HomeScreen.dart';
 import 'package:solutionmaker/ui/sample/SampleUI.dart';
 import 'package:solutionmaker/ui/splash/SplashScreen.dart';
-
 
 void main() {
   runApp(const MyApp());
@@ -22,8 +20,9 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const Splashscreen(),
-      routes: {'/home': (context) => const SampleUI(),
-    },
+      routes: {
+        '/home': (context) => const SampleUI(),
+      },
     );
   }
 }
