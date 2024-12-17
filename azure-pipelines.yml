@@ -1,20 +1,43 @@
-# Android
-# Build your Android project with Gradle.
-# Add steps that test, sign, and distribute the APK, save build artifacts, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/android
-
 trigger:
-- master
+- master # Triggers pipeline on push to the `main` branch
 
 pool:
-  vmImage: 'macos-latest'
+  name: Default # Use your self-hosted agent pool name
+
+variables:
+  FLUTTER_HOME: $(Agent.WorkFolder)/flutter # Path to Flutter installation
 
 steps:
-- task: Gradle@2
+# Step 1: Install Flutter SDK
+- script: |
+    echo "Installing Flutter SDK..."
+    git clone https://github.com/flutter/flutter.git $(FLUTTER_HOME)
+    export PATH=$PATH:$(FLUTTER_HOME)/bin
+    flutter doctor
+  displayName: "Install Flutter SDK"
+
+# Step 2: Fetch Dependencies
+- script: |
+    export PATH=$PATH:$(FLUTTER_HOME)/bin
+    flutter pub get
+  displayName: "Fetch Flutter Dependencies"
+
+# Step 3: Run Flutter Tests
+- script: |
+    export PATH=$PATH:$(FLUTTER_HOME)/bin
+    flutter test
+  displayName: "Run Flutter Tests"
+
+# Step 4: Build APK
+- script: |
+    export PATH=$PATH:$(FLUTTER_HOME)/bin
+    flutter build apk --release
+  displayName: "Build Flutter APK"
+
+# Optional: Publish Artifact (APK)
+- task: PublishBuildArtifacts@1
   inputs:
-    workingDirectory: ''
-    gradleWrapperFile: 'gradlew'
-    gradleOptions: '-Xmx3072m'
-    publishJUnitResults: false
-    testResultsFiles: '**/TEST-*.xml'
-    tasks: 'assembleDebug'
+    pathToPublish: 'build/app/outputs/flutter-apk/app-release.apk'
+    artifactName: 'release-apk'
+    publishLocation: 'Container'
+  displayName: "Publish APK Artifact"
