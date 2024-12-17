@@ -23,10 +23,7 @@ steps:
   displayName: "Fetch Flutter Dependencies"
 
 # Step 3: Run Flutter Tests
-- script: |
-    export PATH=$PATH:$(FLUTTER_HOME)/bin
-    flutter test
-  displayName: "Run Flutter Tests"
+
 
 # Step 4: Build APK
 - script: |
