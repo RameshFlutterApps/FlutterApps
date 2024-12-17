@@ -1,40 +1,43 @@
-on:
-  pull_request:
-    branches:
-      - main
-      - master
-  push:
-    branches:
-      - main
-      - master
-      - develop
-name: "Build & Release"
-jobs:
-  build:
-    name: Build & Release
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-java@v1
-        with:
-          java-version: '17.0.13'
-      - uses: subosito/flutter-action@v1
-        with:
-          flutter-version: '3.24.5'
-      - run: flutter pub get
-      #      - run: flutter test
-      - run: flutter build apk --debug --split-per-abi
-      #      - run: |
-      #          flutter build ios --no-codesign
-      #          cd build/ios/iphoneos
-      #          mkdir Payload
-      #          cd Payload
-      #          ln -s ../Runner.app
-      #          cd ..
-      #          zip -r app.ipa Payload
-      - name: Push to Releases
-        uses: ncipollo/release-action@v1
-        with:
-          artifacts: "build/app/outputs/apk/debug/*,build/ios/iphoneos/app.ipa"
-          tag: v1.0.${{ github.run_number }}
-          token: ${{ secrets.TOKEN }}
+trigger:
+- master # Triggers pipeline on push to the `main` branch
+
+pool:
+  name: Default # Use your self-hosted agent pool name
+
+variables:
+  FLUTTER_HOME: $(Agent.WorkFolder)/flutter # Path to Flutter installation
+
+steps:
+# Step 1: Install Flutter SDK
+- script: |
+    echo "Installing Flutter SDK..."
+    git clone https://github.com/flutter/flutter.git $(FLUTTER_HOME)
+    export PATH=$PATH:$(FLUTTER_HOME)/bin
+    flutter doctor
+  displayName: "Install Flutter SDK"
+
+# Step 2: Fetch Dependencies
+- script: |
+    export PATH=$PATH:$(FLUTTER_HOME)/bin
+    flutter pub get
+  displayName: "Fetch Flutter Dependencies"
+
+# Step 3: Run Flutter Tests
+- script: |
+    export PATH=$PATH:$(FLUTTER_HOME)/bin
+    flutter test
+  displayName: "Run Flutter Tests"
+
+# Step 4: Build APK
+- script: |
+    export PATH=$PATH:$(FLUTTER_HOME)/bin
+    flutter build apk --release
+  displayName: "Build Flutter APK"
+
+# Optional: Publish Artifact (APK)
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: 'build/app/outputs/flutter-apk/app-release.apk'
+    artifactName: 'release-apk'
+    publishLocation: 'Container'
+  displayName: "Publish APK Artifact"
